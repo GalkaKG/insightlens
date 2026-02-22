@@ -154,3 +154,19 @@ Purpose: Include a small unit-test suite for core validators, a README with setu
 - Extended validation: add schema-based checks (e.g., pandera), semantic validators (cross-field rules), and configurable severity levels for automated gating.
 - API & deployment: add background processing and simple authentication for multi-user demos, and containerize the application for reproducible deployment while keeping these optional to preserve the project’s single-developer scope.
 - Testing & reproducibility: expand deterministic fixtures, include data versioning for example datasets, and add lightweight CI to run the pytest suite on push.
+
+## Working System Evidence
+
+### Screenshot 1 – API POST /upload
+![Upload API](screenshots/upload_api.png)
+
+### Screenshot 2 – HTML report with plots
+![HTML Report](screenshots/html_report.png)
+
+### Screenshot 3 – Pytest results
+![Pytest](screenshots/pytest_output.png)
+
+
+## Repository
+
+Source code is available at: [InsightLens GitHub Repository](https://github.com/GalkaKG/insightlens/tree/main)

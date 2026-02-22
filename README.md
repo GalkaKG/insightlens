@@ -6,6 +6,33 @@ The project demonstrates clean backend architecture, separation of concerns, and
 
 ---
 
+---
+
+## Development
+
+Create and activate a Python virtual environment, install dependencies, run the app and tests.
+
+Windows (PowerShell):
+
+```powershell
+python -m venv .venv
+.\\.venv\\Scripts\\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Run the app locally with Uvicorn:
+
+```powershell
+.\\.venv\\Scripts\\python -m uvicorn app:app --reload --port 8000
+```
+
+Run the unit tests:
+
+```powershell
+.\\.venv\\Scripts\\python -m pytest -q
+```
+
 ## 🚀 Overview
 
 Before datasets are used in machine learning models, analytics pipelines, or production systems, they must be validated for structural integrity and quality issues. InsightLens provides a lightweight web interface and API endpoints that automatically analyze uploaded datasets and return structured validation reports.
@@ -32,11 +59,11 @@ The system focuses on backend engineering principles rather than AI integration,
 
 The application follows a modular architecture:
 
-- **API Layer** – FastAPI routes and request handling  
-- **Services Layer** – Data loading and validation logic  
-- **Validation Engine** – Reusable rule-based data checks  
-- **Reporting Layer** – Structured output for API/UI consumption  
-- **Testing Layer** – Unit tests ensuring correctness  
+- **API Layer** – FastAPI routes and request handling
+- **Services Layer** – Data loading and validation logic
+- **Validation Engine** – Reusable rule-based data checks
+- **Reporting Layer** – Structured output for API/UI consumption
+- **Testing Layer** – Unit tests ensuring correctness
 
 This separation ensures maintainability, scalability, and clean integration between components.
 
@@ -60,10 +87,10 @@ This project was developed using GitHub Copilot as an AI coding assistant. The d
 
 The goal was not to integrate AI into the system, but to demonstrate how AI can assist software engineers during:
 
-- Architecture planning  
-- Code generation  
-- Refactoring  
-- Test generation  
-- Debugging  
+- Architecture planning
+- Code generation
+- Refactoring
+- Test generation
+- Debugging
 
 ---
