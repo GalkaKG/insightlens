@@ -1,13 +1,14 @@
 import pandas as pd
 from pathlib import Path
 
-from app import _read_table, _analyze_dataframe
+from app.api.data_ingest import read_table
+from main import _analyze_dataframe
 
 
 def test_read_csv(tmp_path: Path):
     p = tmp_path / "sample.csv"
     p.write_text("id,value\n1,10\n2,20\n3,\n")
-    df = _read_table(p)
+    df = read_table(p)
     assert df.shape == (3, 2)
 
 

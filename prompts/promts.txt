@@ -104,3 +104,23 @@ Generate a FastAPI API module for InsightLens with the following features:
 - Include helper functions for temporary file handling
 - Include docstrings and type hints
 - Make the code production-quality, readable, and maintainable
+
+#####################################################
+
+Generate a Python module for InsightLens that reads CSV and Excel files into pandas DataFrames:
+- Normalize column names to snake_case
+- Trim whitespace in strings
+- Standardize missing values (NA, NaN, empty strings)
+- Enforce max_rows limit of 100000
+- Raise descriptive exceptions on parsing errors
+- Include docstrings and type hints
+- Include example usage
+
+####################################################
+
+Generate a Python validation engine module for InsightLens if there is not:
+- Implement missingness_validator, type_consistency_validator, duplicate_detector, iqr_outlier_detector
+- Each function returns JSON-serializable dicts
+- Configurable via thresholds loaded from JSON
+- Include unit-test examples using pytest
+- Include docstrings and type hints
