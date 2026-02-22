@@ -17,7 +17,7 @@ sys.modules[spec.name] = insight_main
 spec.loader.exec_module(insight_main)
 
 SAMPLE = Path("examples/sample.csv")
-OUT = Path("app/reporting/reports/last_report_local.html")
+OUT = Path("outputs/last_report_local.html")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 if not SAMPLE.exists():

@@ -124,3 +124,12 @@ Generate a Python validation engine module for InsightLens if there is not:
 - Configurable via thresholds loaded from JSON
 - Include unit-test examples using pytest
 - Include docstrings and type hints
+
+####################################################
+
+Generate a Python module that creates:
+- HTML reports with embedded matplotlib plots (histogram, boxplot)
+- Compact JSON reports
+- Functions to convert matplotlib figures to base64 and embed in HTML
+- Include Jinja2 template scaffolding
+- Include docstrings and type hints

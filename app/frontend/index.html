@@ -175,7 +175,17 @@
         <h1>InsightLens</h1>
         <small class="muted">Data Upload & Analysis — student demo</small>
       </div>
-      <div class="muted">Local dev only</div>
+      <div style="display: flex; gap: 12px; align-items: center">
+        <div class="muted">Local dev only</div>
+        <button
+          id="downloadReportBtn"
+          class="btn"
+          disabled
+          style="padding: 8px 10px; font-size: 0.9rem"
+        >
+          Download Full Report
+        </button>
+      </div>
     </header>
 
     <div class="grid wrap">
@@ -240,6 +250,9 @@
         <div class="content" style="margin-top: 12px">
           <div id="reportHtml">No report yet.</div>
           <pre id="reportJson">{}</pre>
+        </div>
+        <div id="downloadInfo" class="muted" style="margin-top: 8px">
+          &nbsp;
         </div>
       </div>
     </div>

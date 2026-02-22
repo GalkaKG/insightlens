@@ -163,6 +163,8 @@ Purpose: Include a small unit-test suite for core validators, a README with setu
 ### Screenshot 2 – HTML report with plots
 ![HTML Report](screenshots/html_report.png)
 
+![HTML Report](screenshots/html_report2.png)
+
 ### Screenshot 3 – Pytest results
 ![Pytest](screenshots/pytest_output.png)
 

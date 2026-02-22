@@ -7,7 +7,7 @@ from pathlib import Path
 
 BASE = "http://127.0.0.1:8000"
 SAMPLE = Path("examples/sample.csv")
-OUT = Path("tools/last_report.html")
+OUT = Path("outputs/last_report.html")
 
 if not SAMPLE.exists():
     print("Sample file not found:", SAMPLE)

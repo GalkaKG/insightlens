@@ -9,16 +9,14 @@ from pathlib import Path
 from typing import Dict, Optional
 
 import pandas as pd
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import base64
-from typing import List, Tuple
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from app.api.data_ingest import read_table, ParsingError, MaxRowsExceededError
+
+# Use ingestion/reporting facades
+from app.ingestion import read_table, ParsingError, MaxRowsExceededError
+from app.reporting import fig_to_base64, plot_histogram, plot_boxplot, render_html_report
 
 
 app = FastAPI(title="InsightLens")
@@ -72,48 +70,7 @@ def _save_upload_file_temp(upload_file: UploadFile) -> Path:
     return Path(tmp.name)
 
 
-def _fig_to_base64(fig: matplotlib.figure.Figure) -> str:
-    """Convert a Matplotlib figure to a base64-encoded PNG string."""
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
-    plt.close(fig)
-    buf.seek(0)
-    return base64.b64encode(buf.read()).decode("ascii")
 
-
-def _make_visualizations(df: pd.DataFrame, max_plots: int = 2) -> List[Tuple[str, str]]:
-    """Create a small set of plots (histogram, boxplot) for numeric columns.
-
-    Returns a list of (caption, base64_png) tuples suitable for embedding in HTML.
-    """
-    imgs: List[Tuple[str, str]] = []
-    numeric = list(df.select_dtypes(include=["number"]).columns)
-    if not numeric:
-        return imgs
-
-    # Histogram for first numeric column
-    col = numeric[0]
-    series = df[col].dropna()
-    if not series.empty:
-        fig, ax = plt.subplots(figsize=(4, 2.4))
-        ax.hist(series, bins='auto', color='#4f46e5', edgecolor='white')
-        ax.set_title(f'Histogram — {col}')
-        ax.set_xlabel(col)
-        ax.set_ylabel('count')
-        imgs.append((f'Histogram: {col}', _fig_to_base64(fig)))
-
-    # Boxplot for first numeric column (if distinct)
-    if len(numeric) >= 1:
-        col2 = numeric[0]
-        series2 = df[col2].dropna()
-        if not series2.empty:
-            fig2, ax2 = plt.subplots(figsize=(2.4, 2.4))
-            ax2.boxplot(series2, vert=False, patch_artist=True,
-                        boxprops=dict(facecolor='#4f46e5', color='#4f46e5'))
-            ax2.set_title(f'Boxplot — {col2}')
-            imgs.append((f'Boxplot: {col2}', _fig_to_base64(fig2)))
-
-    return imgs
 
 
 def _analyze_dataframe(df: pd.DataFrame, missingness_threshold: float = 0.5) -> Dict:
@@ -254,8 +211,20 @@ async def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
     summary = _analyze_dataframe(df, missingness_threshold=req.missingness_threshold)
 
     # Build HTML and JSON artifacts, including visualizations for numeric columns
-    images = _make_visualizations(df)
-    html = _build_html_report(summary, images=images)
+    # Create up to two simple figures (histogram, boxplot) for the first numeric column
+    figures = []
+    numeric = list(df.select_dtypes(include=["number"]).columns)
+    if numeric:
+        col = numeric[0]
+        series = df[col].dropna()
+        if not series.empty:
+            fig1 = plot_histogram(series, bins='auto', title=f"Histogram — {col}")
+            figures.append(fig_to_base64(fig1))
+
+            fig2 = plot_boxplot(series, title=f"Boxplot — {col}")
+            figures.append(fig_to_base64(fig2))
+
+    html = render_html_report(summary, figures=figures)
     report_id = uuid.uuid4().hex
     _REPORT_STORE[report_id] = {"html": html, "json": json.dumps(summary)}
 
