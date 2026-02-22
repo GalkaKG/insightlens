@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>InsightLens — Upload</title>
+    <style>
+      :root {
+        --bg: #0f1724;
+        --card: #0b1220;
+        --muted: #9aa4b2;
+        --accent: #4f46e5;
+        --accent-600: #4338ca;
+        --glass: rgba(255, 255, 255, 0.03);
+        --radius: 12px;
+        --maxw: 1100px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial;
+        background: linear-gradient(180deg, #071022 0%, #071226 60%);
+        color: #e6eef8;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 32px 16px;
+      }
+      .wrap {
+        width: 100%;
+        max-width: var(--maxw);
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        padding: 12px;
+        border-radius: 10px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.02);
+      }
+      h1 {
+        font-size: 1.25rem;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 18px;
+        align-items: start;
+      }
+      .card {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        border-radius: var(--radius);
+        padding: 18px;
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+
+      form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #d7e3ff;
+      }
+      .file-input {
+        border: 1px dashed rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        padding: 12px;
+        background: var(--glass);
+        color: var(--muted);
+      }
+      input[type="file"] {
+        width: 100%;
+      }
+      input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: transparent;
+        color: inherit;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn:active {
+        background: var(--accent-600);
+      }
+
+      #report {
+        min-height: 280px;
+      }
+      #report .content {
+        display: flex;
+        gap: 12px;
+      }
+      #reportHtml {
+        flex: 1;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 12px;
+        border-radius: 8px;
+        color: #cfe6ff;
+      }
+      #reportJson {
+        width: 340px;
+        max-height: 520px;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.12);
+        padding: 12px;
+        border-radius: 8px;
+        color: #bfe0ff;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
+          "Segoe UI Mono", monospace;
+        font-size: 0.86rem;
+      }
+
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        #reportJson {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div style="display: flex; flex-direction: column">
+        <h1>InsightLens</h1>
+        <small class="muted">Data Upload & Analysis — student demo</small>
+      </div>
+      <div class="muted">Local dev only</div>
+    </header>
+
+    <div class="grid wrap">
+      <div class="card">
+        <h2 style="margin-top: 0">Upload & Analysis</h2>
+        <p class="muted">Choose a small CSV or Excel file (student demo)</p>
+        <form
+          id="uploadForm"
+          style="
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          "
+        >
+          <div>
+            <label for="file">File</label>
+            <div class="file-input">
+              <input
+                id="file"
+                name="file"
+                type="file"
+                accept=".csv,.xls,.xlsx"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="threshold">Missingness threshold</label>
+            <input
+              id="threshold"
+              name="threshold"
+              type="number"
+              step="0.01"
+              min="0"
+              max="1"
+              value="0.5"
+            />
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center">
+            <button id="start" class="btn">Upload & Analyze</button>
+            <div class="muted" style="font-size: 0.9rem">
+              Processing is synchronous for demo
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" id="report">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <h2 style="margin: 0">Report</h2>
+          <div class="muted">Rendered HTML + JSON</div>
+        </div>
+        <div class="content" style="margin-top: 12px">
+          <div id="reportHtml">No report yet.</div>
+          <pre id="reportJson">{}</pre>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/main.js"></script>
+  </body>
+</html>

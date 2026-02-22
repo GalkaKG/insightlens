@@ -9,13 +9,22 @@ from pathlib import Path
 from typing import Dict, Optional
 
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import base64
+from typing import List, Tuple
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from app.api.data_ingest import read_table, ParsingError, MaxRowsExceededError
 
 
-app = FastAPI(title="InsightLens (student project)")
+app = FastAPI(title="InsightLens")
+
+# Serve the minimal frontend as static files under /static
+app.mount("/static", StaticFiles(directory="app/frontend"), name="static")
 
 # In-memory stores for uploaded files and generated reports.
 # For a small individual project these are sufficient and simple to inspect.
@@ -61,6 +70,50 @@ def _save_upload_file_temp(upload_file: UploadFile) -> Path:
         tmp.close()
         upload_file.file.close()
     return Path(tmp.name)
+
+
+def _fig_to_base64(fig: matplotlib.figure.Figure) -> str:
+    """Convert a Matplotlib figure to a base64-encoded PNG string."""
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
+    plt.close(fig)
+    buf.seek(0)
+    return base64.b64encode(buf.read()).decode("ascii")
+
+
+def _make_visualizations(df: pd.DataFrame, max_plots: int = 2) -> List[Tuple[str, str]]:
+    """Create a small set of plots (histogram, boxplot) for numeric columns.
+
+    Returns a list of (caption, base64_png) tuples suitable for embedding in HTML.
+    """
+    imgs: List[Tuple[str, str]] = []
+    numeric = list(df.select_dtypes(include=["number"]).columns)
+    if not numeric:
+        return imgs
+
+    # Histogram for first numeric column
+    col = numeric[0]
+    series = df[col].dropna()
+    if not series.empty:
+        fig, ax = plt.subplots(figsize=(4, 2.4))
+        ax.hist(series, bins='auto', color='#4f46e5', edgecolor='white')
+        ax.set_title(f'Histogram — {col}')
+        ax.set_xlabel(col)
+        ax.set_ylabel('count')
+        imgs.append((f'Histogram: {col}', _fig_to_base64(fig)))
+
+    # Boxplot for first numeric column (if distinct)
+    if len(numeric) >= 1:
+        col2 = numeric[0]
+        series2 = df[col2].dropna()
+        if not series2.empty:
+            fig2, ax2 = plt.subplots(figsize=(2.4, 2.4))
+            ax2.boxplot(series2, vert=False, patch_artist=True,
+                        boxprops=dict(facecolor='#4f46e5', color='#4f46e5'))
+            ax2.set_title(f'Boxplot — {col2}')
+            imgs.append((f'Boxplot: {col2}', _fig_to_base64(fig2)))
+
+    return imgs
 
 
 def _analyze_dataframe(df: pd.DataFrame, missingness_threshold: float = 0.5) -> Dict:
@@ -118,7 +171,7 @@ def _analyze_dataframe(df: pd.DataFrame, missingness_threshold: float = 0.5) -> 
     return result
 
 
-def _build_html_report(summary: Dict) -> str:
+def _build_html_report(summary: Dict, images: Optional[List[Tuple[str, str]]] = None) -> str:
     """Construct a minimal, self-contained HTML report from the analysis summary.
 
     The report is intentionally simple so it is readable and suitable for a student project.
@@ -158,6 +211,14 @@ def _build_html_report(summary: Dict) -> str:
     else:
         rows.append("<p>No numeric outliers detected or no numeric columns.</p>")
 
+    # Embedded images (base64 PNG)
+    if images:
+        rows.append("<h2>Visualizations</h2>")
+        for caption, b64 in images:
+            rows.append(f"<div style='margin:10px 0'><h3>{caption}</h3>")
+            rows.append(f"<img src=\"data:image/png;base64,{b64}\" style='max-width:360px;border-radius:6px;border:1px solid rgba(255,255,255,0.03)' />")
+            rows.append("</div>")
+
     return "\n".join(rows)
 
 
@@ -192,8 +253,9 @@ async def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
     df = read_table(path)
     summary = _analyze_dataframe(df, missingness_threshold=req.missingness_threshold)
 
-    # Build HTML and JSON artifacts
-    html = _build_html_report(summary)
+    # Build HTML and JSON artifacts, including visualizations for numeric columns
+    images = _make_visualizations(df)
+    html = _build_html_report(summary, images=images)
     report_id = uuid.uuid4().hex
     _REPORT_STORE[report_id] = {"html": html, "json": json.dumps(summary)}
 
@@ -231,6 +293,12 @@ async def root():
 async def favicon() -> Response:
     """Return no content for favicon requests to reduce noisy logs during local testing."""
     return Response(status_code=204)
+
+
+@app.get("/ui", include_in_schema=False)
+async def ui_index():
+    """Serve the frontend index page for local demos at /ui."""
+    return FileResponse("app/frontend/index.html")
 
 
 __all__ = ["app"]
