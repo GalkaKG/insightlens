@@ -1,5 +1,3 @@
-# AI for Developers – January 2026 Individual Project Assignment
-
 ## Project Overview
 
 **Introduction**

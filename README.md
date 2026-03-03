@@ -16,7 +16,7 @@ Windows (PowerShell):
 
 ```powershell
 python -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
@@ -24,13 +24,13 @@ pip install -r requirements.txt
 Run the app locally with Uvicorn:
 
 ```powershell
-.\\.venv\\Scripts\\python -m uvicorn main:app --reload --port 8000
+.\.venv\Scripts\python -m uvicorn main:app --reload --port 8000
 ```
 
 Run the unit tests:
 
 ```powershell
-.\\.venv\\Scripts\\python -m pytest -q
+.\.venv\Scripts\python -m pytest -q
 ```
 
 ## 🚀 Overview
